@@ -12,3 +12,14 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
+
+void MainWindow::writeSymbol(int turn)
+{
+    //if it's player 1, write a 'X'
+    if (turn == 1) {
+
+    //if it's player 2, write a 'O'
+    } else {
+
+    }
+}
