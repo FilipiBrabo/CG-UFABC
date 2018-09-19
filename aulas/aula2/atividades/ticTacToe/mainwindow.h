@@ -12,7 +12,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public slots:
-    void writeSymbol();
+    void writeSymbol(int i);
 
 public:
     explicit MainWindow(QWidget *parent = 0);
