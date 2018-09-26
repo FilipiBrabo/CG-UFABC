@@ -1,20 +1,14 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    btns.append(ui->pushButton_1);
-    btns.append(ui->pushButton_2);
-    btns.append(ui->pushButton_3);
-    btns.append(ui->pushButton_4);
-    btns.append(ui->pushButton_5);
-    btns.append(ui->pushButton_6);
-    btns.append(ui->pushButton_7);
-    btns.append(ui->pushButton_8);
-    btns.append(ui->pushButton_9);
+    connectBtns();
+    startGame();
 }
 
 MainWindow::~MainWindow()
@@ -22,66 +16,40 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::makeMove(int i, int j, int pos) {
-    if (board[i][j] == 0) {
-        if (player == 1) {
-            board[i][j] = 1;
-            this->btns.at(pos)->setText("X");
-        } else {
-            board[i][j] = -1;
-            this->btns.at(pos)->setText("O");
-        }
+void MainWindow :: connectBtns() {
+    connect(ui->newGameBtn, &QPushButton::clicked, this, &MainWindow::startGame);
+    connect(ui->exitBtn, &QPushButton::clicked, this, &MainWindow::close);
 
-        if (gameOver(checkWin()))
-            return;
-        changePlayer();
+    btns = ui->gridLayoutWidget->findChildren<QPushButton *>();
+
+    for (QPushButton* btn : btns) {
+        connect(btn, &QPushButton::clicked, this, [=](){
+            makeMove(btn);
+        });
     }
 }
 
-void MainWindow::on_pushButton_1_clicked()
-{
-    makeMove(0,0,0);
+void MainWindow::makeMove(QPushButton* btn) {
+    QString btnName = btn->objectName().toLatin1();
+
+    int i = btnName.at(3).digitValue();
+    int j = btnName.at(4).digitValue();
+
+    if (board[i][j] == 0) {
+            if (player == 1) {
+                board[i][j] = 1;
+                btn->setText("X");
+            } else {
+                board[i][j] = -1;
+                btn->setText("O");
+            }
+
+            if (gameOver(checkWin()))
+                return;
+            changePlayer();
+        }
 }
 
-void MainWindow::on_pushButton_2_clicked()
-{
-    makeMove(0,1,1);
-}
-
-void MainWindow::on_pushButton_3_clicked()
-{
-    makeMove(0,2,2);
-}
-
-void MainWindow::on_pushButton_4_clicked()
-{
-    makeMove(1,0,3);
-}
-
-void MainWindow::on_pushButton_5_clicked()
-{
-    makeMove(1,1,4);
-}
-
-void MainWindow::on_pushButton_6_clicked()
-{
-   makeMove(1,2,5);
-}
-
-void MainWindow::on_pushButton_7_clicked()
-{
-    makeMove(2,0,6);
-}
-
-void MainWindow::on_pushButton_8_clicked()
-{
-   makeMove(2,1,7);
-}
-
-void MainWindow::on_pushButton_9_clicked()
-{
-    makeMove(2,2,8);
-}
 
 void MainWindow::changePlayer() {
     if (player == 1) {
@@ -169,7 +137,7 @@ void MainWindow::lockBtns() {
     }
 }
 
-void MainWindow::restartGame() {
+void MainWindow::startGame() {
     for (QPushButton* btn : this->btns) {
         btn->setText("");
         btn->setEnabled(true);
@@ -181,7 +149,7 @@ void MainWindow::restartGame() {
 void MainWindow::on_newGameBtn_clicked()
 {
 
-    restartGame();
+    startGame();
 }
 
 void MainWindow::resetBoard() {
