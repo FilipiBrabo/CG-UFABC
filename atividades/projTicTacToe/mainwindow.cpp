@@ -16,7 +16,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow :: connectBtns() {
+void MainWindow::connectBtns() {
     connect(ui->newGameBtn, &QPushButton::clicked, this, &MainWindow::startGame);
     connect(ui->exitBtn, &QPushButton::clicked, this, &MainWindow::close);
 
