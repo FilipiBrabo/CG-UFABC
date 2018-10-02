@@ -41,7 +41,12 @@ private:
 
 public slots:
     void toggleBackgroundColor(bool);
+    void switchDiagonal(bool);
 
+    void changeV0Color(int num);
+    void changeV1Color(int num);
+    void changeV2Color(int num);
+    void changeV3Color(int num);
 protected :
     void initializeGL();
     void resizeGL(int width , int height);
