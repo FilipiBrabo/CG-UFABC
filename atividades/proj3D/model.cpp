@@ -165,7 +165,9 @@ void Model::createShaders()
 void Model :: drawModel ()
 {
     modelMatrix.setToIdentity(); //Inicializa a matriz
-    modelMatrix.rotate(xRotateValue, yRotateValue, zRotateValue, 0);
+    modelMatrix.rotate(xRotateValue, 1, 0, 0);
+    modelMatrix.rotate(yRotateValue, 0, 1, 0);
+    modelMatrix.rotate(zRotateValue, 0, 0, 1);
     modelMatrix.scale(invDiag, invDiag, invDiag);
     modelMatrix.translate(-midPoint);
 
