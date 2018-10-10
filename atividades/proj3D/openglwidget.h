@@ -20,10 +20,13 @@ protected :
     void paintGL() ;
 
 signals:
-
     void statusBarMessage(QString);
+
 public slots:
     void showFileOpenDialog();
+    void rotateX(int value);
+    void rotateY(int value);
+    void rotateZ(int value);
 };
 
 

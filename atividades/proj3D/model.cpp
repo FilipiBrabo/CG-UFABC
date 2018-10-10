@@ -164,8 +164,18 @@ void Model::createShaders()
 
 void Model :: drawModel ()
 {
+    modelMatrix.setToIdentity(); //Inicializa a matriz
+    modelMatrix.rotate(xRotateValue, yRotateValue, zRotateValue, 0);
+    modelMatrix.scale(invDiag, invDiag, invDiag);
+    modelMatrix.translate(-midPoint);
+
+
     glBindVertexArray(vao);
     glUseProgram(shaderProgram);
+
+    GLuint locModelMatrix = glGetUniformLocation(shaderProgram, "model");
+    glUniformMatrix4fv(locModelMatrix, 1, GL_FALSE, modelMatrix.data());
+
     glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, 0);
 }
 
@@ -204,15 +214,8 @@ void Model::readOFFFile(QString const &fileName)
             vertices[i] = QVector4D(x, y, z, 1.0);
         }
 
-        QVector4D midpoint = (min + max) * 0.5;
-        // 2 approximates sqrt (3) , the diagonal of a cube (d= sqrt (3) * side )
-
-        double invDiag = 2.0 / ( max - min ).length();
-
-        for (unsigned int i = 0; i < numVertices; i ++) {
-            vertices[i] = (vertices[i] - midpoint ) * invDiag;
-            vertices[i].setW(1);
-        }
+        this->midPoint = QVector3D((min + max) * 0.5);
+        this->invDiag  = 2.0/(max - min).length();
 
         for (unsigned int i = 0; i < numFaces; ++i)
         {

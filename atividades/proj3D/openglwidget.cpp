@@ -1,4 +1,5 @@
-# include "openglwidget.h"
+#include "openglwidget.h"
+#include "model.h"
 
 OpenGLWidget::OpenGLWidget ( QWidget * parent ) : QOpenGLWidget ( parent )
 {
@@ -49,4 +50,19 @@ void OpenGLWidget :: showFileOpenDialog ()
     }
 
     update () ;
+}
+
+void OpenGLWidget :: rotateX(int value) {
+    model->xRotateValue = value;
+    update();
+
+}
+void OpenGLWidget :: rotateY(int value) {
+    model->yRotateValue = value;
+    update();
+}
+
+void OpenGLWidget :: rotateZ(int value) {
+    model->zRotateValue = value;
+    update();
 }

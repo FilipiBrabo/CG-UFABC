@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>850</width>
-    <height>500</height>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,6 +22,45 @@
       <width>831</width>
       <height>441</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sliderX">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>470</y>
+      <width>160</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sliderY">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>470</y>
+      <width>160</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="sliderZ">
+    <property name="geometry">
+     <rect>
+      <x>660</x>
+      <y>470</y>
+      <width>160</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
     </property>
    </widget>
   </widget>
@@ -65,7 +104,13 @@
    <header>openglwidget.h</header>
    <slots>
     <signal>statusBarMessage(QString)</signal>
+    <signal>sliderX(int)</signal>
+    <signal>sliderY(int)</signal>
+    <signal>sliderZ(int)</signal>
     <slot>showFileOpenDialog()</slot>
+    <slot>rotateX(int)</slot>
+    <slot>rotateY(int)</slot>
+    <slot>rotateZ(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -100,6 +145,54 @@
     <hint type="destinationlabel">
      <x>225</x>
      <y>168</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderX</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>rotateX(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>99</x>
+     <y>512</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>253</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderY</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>rotateY(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>399</x>
+     <y>512</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>253</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sliderZ</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>rotateZ(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>739</x>
+     <y>512</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>253</y>
     </hint>
    </hints>
   </connection>

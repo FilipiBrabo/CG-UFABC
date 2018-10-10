@@ -24,12 +24,20 @@ public :
     unsigned int numVertices ;
     unsigned int numFaces ;
 
+    int xRotateValue;
+    int yRotateValue;
+    int zRotateValue;
+
     GLuint vao = 0;
 
     GLuint vboVertices = 0;
     GLuint vboIndices = 0;
 
     GLuint shaderProgram = 0;
+
+    QMatrix4x4 modelMatrix;
+    QVector3D midPoint;
+    double invDiag;
 
     void createVBOs();
     void createShaders();
