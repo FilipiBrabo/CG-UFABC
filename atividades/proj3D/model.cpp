@@ -203,7 +203,7 @@ void Model::readOFFFile(QString const &fileName)
         float maxLim = std::numeric_limits<float>::max();
         QVector4D max(minLim, minLim, minLim, 1.0);
         QVector4D min(maxLim, maxLim, maxLim, 1.0);
-        for ( unsigned int i = 0; i < numVertices; ++i)
+        for (unsigned int i = 0; i < numVertices; ++i)
         {
             float x, y, z;
             stream >> x >> y >> z ;
@@ -229,7 +229,34 @@ void Model::readOFFFile(QString const &fileName)
         }
 
         stream.close();
+        createNormals();
         createShaders();
         createVBOs();
     }
+}
+
+void Model::createNormals()
+{
+    normals = std::make_unique<QVector3D []>(numVertices);
+    QVector3D normal;
+
+    for (unsigned int i = 0; i < numFaces; i++) {
+
+        QVector3D v1 = vertices[indices[i*3+1]].toVector3D() - vertices[indices[i*3+0]].toVector3D();   // b-a
+        QVector3D v2 = vertices[indices[i*3+2]].toVector3D() - vertices[indices[i*3+1]].toVector3D();   // c-b
+
+        normal = QVector3D::crossProduct(v1, v2).normalized();
+
+        normals[indices[i*3+0]] += normal;
+        normals[indices[i*3+1]] += normal;
+        normals[indices[i*3+2]] += normal;
+
+    }
+
+    for (unsigned int i = 0; i < numVertices; i++) {
+        normals[i].normalized();
+    }
+    // an O(n+m) algorithm ....
+
+
 }

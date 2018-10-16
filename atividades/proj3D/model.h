@@ -18,6 +18,7 @@ public :
     ~Model();
     std::unique_ptr<QVector4D []> vertices;
     std::unique_ptr<unsigned int []> indices;
+    std::unique_ptr<QVector3D []> normals;
 
     QOpenGLWidget * glWidget ;
 
@@ -48,5 +49,7 @@ public :
     void readOFFFile(const QString & fileName);
 
     void drawModel();
+
+    void createNormals();
 };
 # endif // MODEL_H
