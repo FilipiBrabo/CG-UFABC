@@ -208,7 +208,7 @@ void OpenGLWidget::paintGL()
 }
 
 void changeV0Color(int num, QVector4D[]) {
-    colors[0] = QVector4D(1, 0, 0, 1); // Red
+    //colors[0] = QVector4D(1, 0, 0, 1); // Red
 }
 void changeV1Color(int num) {
 
