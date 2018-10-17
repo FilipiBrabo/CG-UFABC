@@ -19,5 +19,5 @@ out vec4 inout_color;
 
 void main() {
     inout_color = vec4(abs(normal), 1);
-    gl_Position = ...;
+    gl_Position =
 }

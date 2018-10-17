@@ -33,6 +33,7 @@ public :
 
     GLuint vboVertices = 0;
     GLuint vboIndices = 0;
+    GLuint vboNormals = 0;
 
     GLuint shaderProgram = 0;
 

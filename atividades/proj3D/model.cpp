@@ -17,10 +17,12 @@ void Model :: destroyVBOs ()
 {
     glDeleteBuffers(1, &vboVertices);
     glDeleteBuffers(1, &vboIndices);
+    //glDeleteBuffers(1, &vboNormals);
     glDeleteVertexArrays(1 , &vao);
 
     vboVertices = 0;
     vboIndices = 0;
+    //vboNormals = 0;
     vao = 0;
 }
 
@@ -43,6 +45,13 @@ void Model::createVBOs()
         vertices.get(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
+
+//    glGenBuffers(1 , &vboNormals);
+//    glBindBuffer(GL_ARRAY_BUFFER, vboNormals);
+//    glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(QVector4D),
+//        vertices.get(), GL_STATIC_DRAW);
+//    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+//    glEnableVertexAttribArray(0);
 
     glGenBuffers(1, &vboIndices);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
@@ -229,7 +238,7 @@ void Model::readOFFFile(QString const &fileName)
         }
 
         stream.close();
-        createNormals();
+        //createNormals();
         createShaders();
         createVBOs();
     }
@@ -257,6 +266,4 @@ void Model::createNormals()
         normals[i].normalized();
     }
     // an O(n+m) algorithm ....
-
-
 }
