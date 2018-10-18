@@ -1,4 +1,4 @@
-#include "openglwidget.h"
+﻿#include "openglwidget.h"
 
 OpenGLWidget::OpenGLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
@@ -37,36 +37,8 @@ void OpenGLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-    GLint locScaling = glGetUniformLocation(shaderProgram, "scaling");
-    GLint locTranslation = glGetUniformLocation(shaderProgram, "translation");
-
-    glUseProgram(shaderProgram);
-
-    glBindVertexArray(vao);           
-
-    // Pacman
-    glUniform4f(locTranslation, playerPosX, playerPosY, 0, 0);
-    glUniform1f(locScaling, 0.5);
-    glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, 0);
-
-    // Coins
-    // Draw the current line which the pacman is traveling
-    for (float i = -1.0f; i < 1.1f; i+= 0.1f) {
-
-            if (playerPosX < i + 0.2f) {
-                glUniform4f(locTranslation, i, playerPosY - 0.24f, 0, 0);
-                glUniform1f(locScaling, 0.1f);
-                glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, 0);
-            }
-    }
-    // Draw all the coins that are above pacman
-    for (float i = -1.0f; i < 1.1f; i+= 0.1f) {
-        for (float j = playerPosY - 0.04f; j < 1.0f; j+= 0.2f) {
-                glUniform4f(locTranslation, i, j, 0, 0);
-                glUniform1f(locScaling, 0.1);
-                glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, 0);
-            }
-    }
+    drawPacman();
+    drawMoeda();
 }
 
 void OpenGLWidget::createShaders()
@@ -194,6 +166,11 @@ void OpenGLWidget::createVBOs()
     makeCurrent();
     destroyVBOs();
 
+    createPacmanVBO();
+    createMoedaVBO();
+}
+
+void OpenGLWidget::createPacmanVBO() {
     numVertices = 50;
     numFaces = 48;
 
@@ -228,8 +205,8 @@ void OpenGLWidget::createVBOs()
         indices[i+2] = i/3 + 2;
     }
 
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    glGenVertexArrays(1, &vaoPacman);
+    glBindVertexArray(vaoPacman);
 
     glGenBuffers(1, &vboVertices);
     glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
@@ -246,6 +223,56 @@ void OpenGLWidget::createVBOs()
     glGenBuffers(1, &vboIndices);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndices);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, numFaces * 3 * sizeof(unsigned int), indices.get(), GL_DYNAMIC_DRAW);
+
+void OpenGLWidget::createMoedaVBO() {
+        numVertices = 50;
+        numFaces = 48;
+
+        float angulo = (2.0f * 3.14159265f)/ (float)(numVertices-2);
+
+        //circle origin
+        vertices[0] = QVector4D(playerPosX, playerPosY, 0, 1);
+
+        // vertices of the circle
+        for (int i = 1; i < numVertices; i++) {
+            float cosAngulo = cos((i-1) * angulo);
+            float senAngulo = sin((i-1) * angulo);
+
+            float posX = playerPosX + raio*cosAngulo;
+            float posY = playerPosY + raio*senAngulo;
+
+            vertices[i] = QVector4D(posX, posY, 0, 1);
+        }
+
+        for (int i = 0; i < numVertices; i++){
+            colors[i] = QVector4D(1, 1, 1, 1);
+        }
+
+        // Topology of the mesh (pacman && coins)
+        for (int i = 0; i < numFaces*3; i+=3) {
+            indices[i] = 0;
+            indices[i+1] = i/3 + 1;
+            indices[i+2] = i/3 + 2;
+        }
+
+        glGenVertexArrays(1, &vaoMoeda);
+        glBindVertexArray(vaoMoeda);
+
+        glGenBuffers(1, &vboVerticesMoeda);
+        glBindBuffer(GL_ARRAY_BUFFER, vboVerticesMoeda);
+        glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(QVector4D), vertices.get(), GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glEnableVertexAttribArray(0);
+
+        glGenBuffers(1, &vboColorsMoeda);
+        glBindBuffer(GL_ARRAY_BUFFER, vboColorsMoeda);
+        glBufferData(GL_ARRAY_BUFFER, numVertices * sizeof(QVector4D), colors.get(), GL_STATIC_DRAW);
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+        glEnableVertexAttribArray(1);
+
+        glGenBuffers(1, &vboIndicesMoeda);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesMoeda);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, numFaces * 3 * sizeof(unsigned int), indices.get(), GL_DYNAMIC_DRAW);
 }
 
 void OpenGLWidget::destroyVBOs()
@@ -253,12 +280,22 @@ void OpenGLWidget::destroyVBOs()
     glDeleteBuffers(1, &vboVertices);
     glDeleteBuffers(1, &vboColors);
     glDeleteBuffers(1, &vboIndices);
-    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vboVerticesMoeda);
+    glDeleteBuffers(1, &vboColorsMoeda);
+    glDeleteBuffers(1, &vboIndicesMoeda);
+
+    glDeleteVertexArrays(1, &vaoPacman);
+    glDeleteVertexArrays(1, &vaoMoeda);
 
     vboVertices = 0;
     vboIndices = 0;
     vboColors = 0;
-    vao = 0;
+    vaoPacman = 0;
+
+    vboVerticesMoeda = 0;
+    vboIndicesMoeda = 0;
+    vboColorsMoeda = 0;
+    vaoMoeda = 0;
 }
 
 void OpenGLWidget::animate()
@@ -281,4 +318,47 @@ void OpenGLWidget::animate()
 
     update();
 }
+
+void OpenGLWidget::drawPacman() {
+
+    GLint locScaling = glGetUniformLocation(shaderProgram, "scaling");
+    GLint locTranslation = glGetUniformLocation(shaderProgram, "translation");
+
+    glUseProgram(shaderProgram);
+
+    glBindVertexArray(vaoPacman);
+
+    // Pacman
+    glUniform4f(locTranslation, playerPosX, playerPosY, 0, 0);
+    glUniform1f(locScaling, 0.5);
+    glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, 0);
+}
+
+void OpenGLWidget::drawMoeda() {
+    GLint locScaling = glGetUniformLocation(shaderProgram, "scaling");
+    GLint locTranslation = glGetUniformLocation(shaderProgram, "translation");
+
+    glUseProgram(shaderProgram);
+
+    glBindVertexArray(vaoMoeda); //se mudo pro vaoMoeda, não funciona
+
+    for (float i = -1.0f; i < 1.1f; i+= 0.1f) {
+
+            if (playerPosX < i + 0.2f) {
+                glUniform4f(locTranslation, i, playerPosY - 0.24f, 0, 0);
+                glUniform1f(locScaling, 0.1f);
+                glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, 0);
+            }
+    }
+
+    // Draw all the coins that are above pacman
+    for (float i = -1.0f; i < 1.1f; i+= 0.1f) {
+        for (float j = playerPosY - 0.04f; j < 1.0f; j+= 0.2f) {
+                glUniform4f(locTranslation, i, j, 0, 0);
+                glUniform1f(locScaling, 0.1);
+                glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, 0);
+            }
+    }
+}
+
 
