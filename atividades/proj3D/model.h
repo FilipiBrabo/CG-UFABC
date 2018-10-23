@@ -10,6 +10,7 @@
 # include <limits>
 # include <iostream>
 # include <memory>
+# include "material.h"
 
 class Model : public QOpenGLExtraFunctions
 {
@@ -22,8 +23,12 @@ public :
 
     QOpenGLWidget * glWidget ;
 
+    Material material;
+
     unsigned int numVertices ;
     unsigned int numFaces ;
+    int shaderIndex = 0;
+    int numShaders = 0;
 
     int xRotateValue;
     int yRotateValue;
@@ -35,7 +40,7 @@ public :
     GLuint vboIndices = 0;
     GLuint vboNormals = 0;
 
-    GLuint shaderProgram = 0;
+    std::vector<GLuint> shaderProgram;
 
     QMatrix4x4 modelMatrix;
     QVector3D midPoint;

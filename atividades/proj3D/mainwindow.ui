@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>850</width>
-    <height>560</height>
+    <height>595</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,7 +28,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>470</y>
+      <y>500</y>
       <width>160</width>
       <height>19</height>
      </rect>
@@ -44,7 +44,7 @@
     <property name="geometry">
      <rect>
       <x>320</x>
-      <y>470</y>
+      <y>500</y>
       <width>160</width>
       <height>19</height>
      </rect>
@@ -60,7 +60,7 @@
     <property name="geometry">
      <rect>
       <x>660</x>
-      <y>470</y>
+      <y>500</y>
       <width>160</width>
       <height>19</height>
      </rect>
@@ -71,6 +71,50 @@
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
     </property>
+   </widget>
+   <widget class="QComboBox" name="comboBox">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>450</y>
+      <width>821</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <item>
+     <property name="text">
+      <string>0 - vShader1</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>1 - Flat</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>2 - Gouraud</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>3 - Phong</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>4 - Normal</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -116,10 +160,12 @@
     <signal>sliderX(int)</signal>
     <signal>sliderY(int)</signal>
     <signal>sliderZ(int)</signal>
+    <signal>enableComboShaders(bool)</signal>
     <slot>showFileOpenDialog()</slot>
     <slot>rotateX(int)</slot>
     <slot>rotateY(int)</slot>
     <slot>rotateZ(int)</slot>
+    <slot>changeShader(int)</slot>
    </slots>
   </customwidget>
  </customwidgets>
@@ -198,6 +244,22 @@
     <hint type="sourcelabel">
      <x>739</x>
      <y>512</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>425</x>
+     <y>253</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>openGLWidget</receiver>
+   <slot>changeShader(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>420</x>
+     <y>493</y>
     </hint>
     <hint type="destinationlabel">
      <x>425</x>

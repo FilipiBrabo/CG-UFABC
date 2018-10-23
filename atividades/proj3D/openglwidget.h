@@ -5,6 +5,7 @@
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
 #include "model.h"
+#include "light.h"
 
 class OpenGLWidget : public QOpenGLWidget , protected QOpenGLExtraFunctions
 {
@@ -13,6 +14,11 @@ class OpenGLWidget : public QOpenGLWidget , protected QOpenGLExtraFunctions
 public :
     OpenGLWidget ( QWidget * parent = 0);
     std::shared_ptr<Model> model = nullptr;
+    Light light;
+
+    QMatrix4x4 projectionMatrix ;
+    QMatrix4x4 viewMatrix ;
+
 
 protected :
     void initializeGL() ;
@@ -21,12 +27,16 @@ protected :
 
 signals:
     void statusBarMessage(QString);
+    void enableComboShaders(bool);
+
+
 
 public slots:
     void showFileOpenDialog();
     void rotateX(int value);
     void rotateY(int value);
     void rotateZ(int value);
+    void changeShader(int);
 };
 
 

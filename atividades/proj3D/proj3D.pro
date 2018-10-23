@@ -26,12 +26,16 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     openglwidget.cpp \
-    model.cpp
+    model.cpp \
+    light.cpp \
+    material.cpp
 
 HEADERS += \
         mainwindow.h \
     openglwidget.h \
-    model.h
+    model.h \
+    light.h \
+    material.h
 
 FORMS += \
         mainwindow.ui

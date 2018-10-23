@@ -2,5 +2,13 @@
     <qresource prefix="/shaders">
         <file>vshader1.glsl</file>
         <file>fshader1.glsl</file>
+        <file>vgouraud.glsl</file>
+        <file>fgouraud.glsl</file>
+        <file>vphong.glsl</file>
+        <file>fphong.glsl</file>
+        <file>vflat.glsl</file>
+        <file>fflat.glsl</file>
+        <file>fnormal.glsl</file>
+        <file>vnormal.glsl</file>
     </qresource>
 </RCC>
