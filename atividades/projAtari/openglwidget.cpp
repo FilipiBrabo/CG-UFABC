@@ -14,7 +14,7 @@ OpenGLWidget::~OpenGLWidget()
 void OpenGLWidget::initializeGL()
 {
     initializeOpenGLFunctions();
-    glClearColor(0.339412, 0.339412, 0.339412, 1);
+    glClearColor(0.339412f, 0.339412f, 0.339412f, 1);
 
     qDebug("OpenGL version: %s", glGetString(GL_VERSION));
     qDebug("GLSL %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -22,9 +22,9 @@ void OpenGLWidget::initializeGL()
     createShaders();
     createVBOs();
 
+    //TODO: arrumar update
     connect(&timer, SIGNAL(timeout()), this, SLOT(animate()));
     timer.start(0);
-
     time.start();
 }
 
@@ -37,9 +37,12 @@ void OpenGLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT);
 
-//    drawPacman();
-//    drawMoeda();
-    drawCar();
+    if (!collided) {
+        for (int i = 0; i < 3; i++) {
+            drawCar(enemiesPosX[i], enemiesPosY[i]);
+        }
+        drawCar(playerPosX, playerPosY);
+    }
 }
 
 void OpenGLWidget::createShaders()
@@ -171,31 +174,81 @@ void OpenGLWidget::createVBOs()
 }
 
 void OpenGLWidget::createCarVBO() {
-    numVerticesCar = 4;
-    numFacesCar = 2;
+    numVerticesCar = 16;
+    numFacesCar = 10;
 
     vertices = std::make_unique<QVector4D []>(numVerticesCar);
     colors = std::make_unique<QVector4D []>(numVerticesCar);
-    indices = std::make_unique<unsigned int []>(numFacesCar);
+    indices = std::make_unique<unsigned int []>(numFacesCar*3);
 
     //vertices of the car
-    vertices[0] = QVector4D(-0.25, -0.25, 0, 1);
-    vertices[1] = QVector4D(0.25, -0.25, 0, 1);
-    vertices[2] = QVector4D(0.25, 0.25, 0, 1);
-    vertices[3] = QVector4D(-0.25, 0.25, 0, 1);
+    vertices[0] = QVector4D(-0.06f, -0.15f, 0, 1);
+    vertices[1] = QVector4D(0.06f, -0.15f, 0, 1);
+    vertices[2] = QVector4D(0.1f, -0.11f, 0, 1);
+    vertices[3] = QVector4D(0.1f, 0.11f, 0, 1);
+    vertices[4] = QVector4D(0.05f, 0.15f, 0, 1);
+    vertices[5] = QVector4D(-0.05f, 0.15f, 0, 1);
+    vertices[6] = QVector4D(-0.1f, 0.11f, 0, 1);
+    vertices[7] = QVector4D(-0.1f, -0.11f, 0, 1);
 
-    //Color of the car
-    for (int i = 0; i < numVerticesCar; i++){
+    // Vertices of the windshield
+    vertices[8] = QVector4D(0.07f, 0.05f, 0, 1);
+    vertices[9] = QVector4D(-0.07f, 0.05f, 0, 1);
+    vertices[10] = QVector4D(-0.06f, 0, 0, 1);
+    vertices[11] = QVector4D(0.06f, 0, 0, 1);
+
+    // Vertices of the back windshield
+    vertices[12] = QVector4D(0.04f, -0.12f, 0, 1);
+    vertices[13] = QVector4D(-0.04f, -0.12f, 0, 1);
+    vertices[14] = QVector4D(-0.06f, -0.08f, 0, 1);
+    vertices[15] = QVector4D(0.06f, -0.08f, 0, 1);
+
+
+    // Color of the car
+    for (int i = 0; i < 8; i++){
         colors[i] = QVector4D(1, 0, 0, 1);
     }
 
-    //Topology of the car mesh
+    // Color of the windshields
+    for (int i = 8; i< numVerticesCar; i++) {
+        colors[i] = QVector4D(0, 0, 0, 1);
+    }
+
+    // Topology of the car mesh
     indices[0] = 0;
     indices[1] = 1;
     indices[2] = 2;
-    indices[3] = 2;
-    indices[4] = 3;
-    indices[5] = 0;
+    indices[3] = 0;
+    indices[4] = 2;
+    indices[5] = 3;
+    indices[6] = 0;
+    indices[7] = 3;
+    indices[8] = 4;
+    indices[9] = 0;
+    indices[10] = 4;
+    indices[11] = 5;
+    indices[12] = 0;
+    indices[13] = 5;
+    indices[14] = 6;
+    indices[15] = 0;
+    indices[16] = 6;
+    indices[17] = 7;
+
+    //Topology of the windshield
+    indices[18] = 9;
+    indices[19] = 8;
+    indices[20] = 11;
+    indices[21] = 9;
+    indices[22] = 10;
+    indices[23] = 11;
+
+    // Topology of the back windshield
+    indices[24] = 13;
+    indices[25] = 12;
+    indices[26] = 15;
+    indices[27] = 13;
+    indices[28] = 14;
+    indices[29] = 15;
 
     glGenVertexArrays(1, &vaoCar);
     glBindVertexArray(vaoCar);
@@ -235,25 +288,49 @@ void OpenGLWidget::destroyVBOs()
 
 void OpenGLWidget::animate()
 {
-//    float elapsedTime = time.restart() / 1000.0f;
+    float elapsedTime = time.restart() / 10000.0f;
 
-//    // Change player X position
-//    playerPosX += 1.5f * elapsedTime;
+    //Change enemies Y position
+    for (int i = 0; i < 4; i++) {
+        if (enemiesPosY[i] < -1.1f) {
+            //TODO:gerar numero aleatório
+            enemiesPosY[i] = 0;
+        }
+        enemiesPosY[i] += -0.5f * elapsedTime;
+    }
 
+    // Change player X position
+    playerPosX += speed * elapsedTime;
 
-//    // Check if pacman is out of window
-//    if (playerPosX >= 1.5f && playerPosY > 1) {
-//        playerPosX = -1.0f;
-//        playerPosY = -0.6f;
-//    }
-//    if (playerPosX >= 1.5f) {
-//        playerPosY += 0.2;
-//        playerPosX = -1.0;
-//    }
+    // Check car boundaries
+    if (playerPosX >= 0.4f) {
+        playerPosX = 0.4f;
+    }
+    if (playerPosX <= -0.4f) {
+        playerPosX = -0.4f;
+    }
 
+    //Check collisions
+    for (int i =0; i < 2; i++) {
+        if (enemiesPosY[i] - .22f < playerPosY && enemiesPosY[i] > -0.95f) {
+
+            if (enemiesPosX[i] - distanceOffset <= playerPosX + distanceOffset
+                    && enemiesPosX[i] - distanceOffset >= playerPosX - distanceOffset) {
+                collided = true;
+                qDebug() << "Colidiu";
+            } else if(enemiesPosX[i] + distanceOffset > playerPosX - distanceOffset
+                      && enemiesPosX[i] + distanceOffset < playerPosX + distanceOffset) {
+                collided = true;
+                qDebug() << "Colidiu";
+            }
+        }
+    }
+
+    //qDebug() << enemiesPosY[0];
+//    qDebug() << ++a;
     update();
 }
-void OpenGLWidget::drawCar() {
+void OpenGLWidget::drawCar(float x, float y) {
     GLint locTranslation = glGetUniformLocation(shaderProgram, "translation");
     GLint locScaling = glGetUniformLocation(shaderProgram, "scaling");
 
@@ -261,9 +338,25 @@ void OpenGLWidget::drawCar() {
 
     glBindVertexArray(vaoCar);
 
-    glUniform4f(locTranslation, 0, -0.75, 0, 0);
+    glUniform4f(locTranslation, x, y, 0, 0);
     glUniform1f(locScaling, 1.0);
     glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, 0);
 }
 
+void OpenGLWidget::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_D)
+        speed = 1.5f;
+
+    if (event->key() == Qt::Key_A)
+        speed = -1.5f;
+}
+
+void OpenGLWidget::keyReleaseEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_D ||
+        event->key() == Qt::Key_A)
+        speed = 0;
+
+}
 

@@ -27,13 +27,22 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
 
     GLuint shaderProgram;
 
-    float playerPosX = 0.0f;
-    float playerPosY = -1.0f;
-    float raio = 0.2f;
+    float playerPosX = 0;
+    float playerPosY = -0.8f;
+    float distanceOffset = 0.08f;
+
+
+    float enemiesPosX[3] = {-0.4f, 0, 0.4f};
+    float enemiesPosY[3] = {-1, 0, -1};
+
     unsigned int numVertices, numFaces, numVerticesCar, numFacesCar;
+    float speed = 0;
+    bool collided = false;
 
     QTimer timer;
     QTime time;
+
+    int a =0;
 
 public:
     explicit OpenGLWidget (QWidget *parent = 0);
@@ -46,7 +55,10 @@ public:
     void destroyVBOs();
     void destroyShaders();
 
-    void drawCar();
+    void drawCar(float x, float y);
+
+    void keyPressEvent(QKeyEvent *event);
+    void keyReleaseEvent(QKeyEvent *event);
 
 protected :
     void initializeGL();
