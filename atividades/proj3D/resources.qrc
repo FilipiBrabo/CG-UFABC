@@ -1,14 +1,20 @@
 <RCC>
     <qresource prefix="/shaders">
-        <file>vshader1.glsl</file>
         <file>fshader1.glsl</file>
+        <file>vshader1.glsl</file>
         <file>vgouraud.glsl</file>
         <file>fgouraud.glsl</file>
         <file>vphong.glsl</file>
         <file>fphong.glsl</file>
         <file>vflat.glsl</file>
         <file>fflat.glsl</file>
-        <file>fnormal.glsl</file>
         <file>vnormal.glsl</file>
+        <file>fnormal.glsl</file>
+        <file>vphongnormal.glsl</file>
+        <file>fphongnormal.glsl</file>
+        <file>vtoon.glsl</file>
+        <file>ftoon.glsl</file>
+        <file>vphong2.glsl</file>
+        <file>fphong2.glsl</file>
     </qresource>
 </RCC>

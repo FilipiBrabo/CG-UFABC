@@ -1,12 +1,12 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2018-10-03T19:08:09
+# Project created by QtCreator 2018-10-03T19:14:38
 #
 #-------------------------------------------------
 
-QT       += core gui opengl
+QT       += core gui widgets opengl
 
-TARGET = proj3D
+TARGET = 3dviewer
 TEMPLATE = app
 
 # The following define makes your compiler emit warnings if you use
@@ -28,14 +28,18 @@ SOURCES += \
     openglwidget.cpp \
     model.cpp \
     light.cpp \
-    material.cpp
+    material.cpp \
+    camera.cpp \
+    trackball.cpp
 
 HEADERS += \
         mainwindow.h \
     openglwidget.h \
     model.h \
     light.h \
-    material.h
+    material.h \
+    camera.h \
+    trackball.h
 
 FORMS += \
         mainwindow.ui
@@ -47,3 +51,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resources.qrc
+
+DISTFILES += \
+    vshader1.glsl \
+    fshader1.glsl

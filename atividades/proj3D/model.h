@@ -1,61 +1,59 @@
-# ifndef MODEL_H
-# define MODEL_H
+#ifndef MODEL_H
+#define MODEL_H
 
-# include <QtOpenGL>
-# include <QOpenGLWidget>
-# include <QOpenGLExtraFunctions>
-# include <QTextStream>
-# include <QFile>
-# include <fstream>
-# include <limits>
-# include <iostream>
-# include <memory>
+#include <QtOpenGL>
+#include <QTextStream>
+#include <QFile>
+
+#include <fstream>
+#include <limits>
+#include <iostream>
+#include <memory>
+
 # include "material.h"
+#include "trackball.h"
 
 class Model : public QOpenGLExtraFunctions
 {
-public :
-    Model(QOpenGLWidget * _glWidget);
-    ~Model();
     std::unique_ptr<QVector4D []> vertices;
-    std::unique_ptr<unsigned int []> indices;
     std::unique_ptr<QVector3D []> normals;
+    std::unique_ptr<unsigned int []> indices;
 
-    QOpenGLWidget * glWidget ;
+    int numShaders;
 
-    Material material;
-
-    unsigned int numVertices ;
-    unsigned int numFaces ;
-    int shaderIndex = 0;
-    int numShaders = 0;
-
-    int xRotateValue;
-    int yRotateValue;
-    int zRotateValue;
+    QOpenGLWidget * glWidget;
 
     GLuint vao = 0;
-
     GLuint vboVertices = 0;
-    GLuint vboIndices = 0;
     GLuint vboNormals = 0;
-
-    std::vector<GLuint> shaderProgram;
+    GLuint vboIndices = 0;
 
     QMatrix4x4 modelMatrix;
     QVector3D midPoint;
-    double invDiag;
+    double invDiag;       
 
+public:
+    unsigned int numVertices;
+    unsigned int numFaces;
+
+    std::vector<GLuint> shaderProgram;
+    int shaderIndex;
+
+    Material material;
+    TrackBall trackBall;
+
+    Model(QOpenGLWidget * _glWidget);
+    ~Model();
+
+    void createNormals();
     void createVBOs();
     void createShaders();
-
     void destroyVBOs();
     void destroyShaders();
 
     void readOFFFile(const QString & fileName);
 
-    void drawModel();
-
-    void createNormals();
+    void drawModel(float angleY);
 };
-# endif // MODEL_H
+
+#endif // MODEL_H

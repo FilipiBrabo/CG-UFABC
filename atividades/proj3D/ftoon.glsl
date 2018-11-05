@@ -11,7 +11,7 @@ uniform vec4 diffuseProduct;
 uniform vec4 specularProduct;
 uniform float shininess;
 
-vec4 Phong(vec3 n)
+vec4 ToonPhong(vec3 n)
 {
     vec3 N = normalize(n);
     vec3 E = normalize(fE);
@@ -21,15 +21,21 @@ vec4 Phong(vec3 n)
     float Kd = max(NdotL, 0.0);
     float Ks = (NdotL < 0.0) ? 0.0 : pow(max(dot(R, E), 0.0), shininess);
 
+    Kd = floor(Kd * 4) / 4;
+
     vec4 diffuse = Kd * diffuseProduct;
     vec4 specular = Ks * specularProduct;
     vec4 ambient = ambientProduct;
 
-    return ambient + diffuse + specular;
+    float EdotN = dot(E, N);
+    if (EdotN < 0.3f)
+        return vec4(1,1,0,1);
+    else
+        return ambient + diffuse;// + specular;
 }
 
 void main ()
 {
-    frag_color = Phong(fN);
+    frag_color = ToonPhong(fN);
     frag_color.a = 1.0;
 }

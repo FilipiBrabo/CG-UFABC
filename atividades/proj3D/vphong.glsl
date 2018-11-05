@@ -1,23 +1,29 @@
-# version 400
-layout ( location = 0) in vec4 vPosition ;
-layout ( location = 1) in vec3 vNormal ;
+#version 400
 
-uniform mat4 model ;
-uniform mat4 view ;
-uniform mat4 projection ;
+layout (location = 0) in vec4 vPosition;
+layout (location = 1) in vec3 vNormal;
 
-uniform mat3 normalMatrix ;
-uniform vec4 lightPosition ;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
+uniform mat3 normalMatrix;
+uniform vec4 lightPosition;
 
-out vec3 fN ;
-out vec3 fE ;
-out vec3 fL ;
+out vec3 fN;
+out vec3 fE;
+out vec3 fL;
 
 void main ()
 {
-    vec4 VMvPosition = view * model * vPosition ;
-    fN = mat3 ( view ) * normalMatrix * vNormal ;
-    fL = lightPosition . xyz - VMvPosition . xyz ;
-    fE = - VMvPosition . xyz ;
-    gl_Position = projection * VMvPosition ;
+    vec4 VMvPosition = viewMatrix * modelMatrix * vPosition;
+
+    vec4 lightPositionCam = viewMatrix * modelMatrix * lightPosition;
+
+    fN = mat3(viewMatrix) * normalMatrix * vNormal;
+
+    fL = lightPosition.xyz - VMvPosition.xyz;
+    //fL = lightPositionCam.xyz - VMvPosition.xyz;
+    fE = -VMvPosition.xyz;
+
+    gl_Position = projectionMatrix * VMvPosition;
 }

@@ -30,6 +30,6 @@ vec4 Phong(vec3 n)
 
 void main ()
 {
-    frag_color = Phong(fN);
+    frag_color = (Phong(fN) + vec4(abs(normalize(fN)), 1)) / 2;
     frag_color.a = 1.0;
 }
