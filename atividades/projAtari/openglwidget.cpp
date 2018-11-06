@@ -25,6 +25,9 @@ void OpenGLWidget::initializeGL()
     createShaders();
     createVBOs();
 
+    score = 0;
+    collided = false;
+
     playerPos = std::make_unique<QVector2D []>(1);
     playerPos[0] = QVector2D(0, -0.8f);
 
@@ -45,7 +48,7 @@ void OpenGLWidget::initializeGL()
 
     connect(&timer, SIGNAL(timeout()), this, SLOT(animate()));
     timer.start(0);
-    time.start();
+    time.start();    
 }
 
 void OpenGLWidget::resizeGL(int width, int height)
@@ -55,7 +58,7 @@ void OpenGLWidget::resizeGL(int width, int height)
 
 void OpenGLWidget::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT); 
+    glClear(GL_COLOR_BUFFER_BIT);
 
     drawGrass(0.8f);
     drawGrass(-0.8f);
@@ -67,8 +70,9 @@ void OpenGLWidget::paintGL()
     if (!collided) {
         for (size_t i = 0; i < 5; i++) {
             drawCar(enemiePos[i]);
+
+            drawCar(playerPos[0]);
         }
-        drawCar(playerPos[0]);
     }
 }
 
@@ -458,7 +462,7 @@ void OpenGLWidget::animate()
             if (roadMarkPos[i].y() < -1.2f) {
                 roadMarkPos[i].setY(1.2f);
             }
-            roadMarkPos[i].setY(roadMarkPos[i].y() - (0.7f * elapsedTime));
+            roadMarkPos[i].setY(roadMarkPos[i].y() - (1 * elapsedTime));
         }
 
         // Change player X position
@@ -479,18 +483,20 @@ void OpenGLWidget::animate()
                 if (enemiePos[i].x() - distanceOffset <= playerPos[0].x() + distanceOffset
                         && enemiePos[i].x() - distanceOffset >= playerPos[0].x() - distanceOffset) {
                     collided = true;
+                    timer.stop();
                     qDebug() << "Colidiu";
+                    showBtn();
                 } else if(enemiePos[i].x() + distanceOffset > playerPos[0].x() - distanceOffset
                           && enemiePos[i].x() + distanceOffset < playerPos[0].x() + distanceOffset) {
                     collided = true;
+                    timer.stop();
                     qDebug() << "Colidiu";
+                    showBtn();
                 }
             }
-        }
-        update();
-    } else {
-        showBtn();
-    }
+        }        
+     }
+    update();
 }
 
 void OpenGLWidget::drawCar(QVector2D v) {
@@ -584,29 +590,31 @@ float OpenGLWidget::generatePosY() {
 }
 
 void OpenGLWidget::restartGame() {
+        destroyVBOs();
+        destroyShaders();
+        initializeGL();
+//    playerPos[0] = QVector2D(0, -0.8f);
 
-    playerPos[0] = QVector2D(0, -0.8f);
+//    enemiePos[0] = QVector2D(generatePosX(), 1.15f);
+//    enemiePos[1] = QVector2D(generatePosX(), 1.75f);
+//    enemiePos[2] = QVector2D(generatePosX(), 2.35f);
+//    enemiePos[3] = QVector2D(generatePosX(), 2.95f);
+//    enemiePos[4] = QVector2D(generatePosX(), generatePosY());
 
-    enemiePos[0] = QVector2D(generatePosX(), 1.15f);
-    enemiePos[1] = QVector2D(generatePosX(), 1.75f);
-    enemiePos[2] = QVector2D(generatePosX(), 2.35f);
-    enemiePos[3] = QVector2D(generatePosX(), 2.95f);
-    enemiePos[4] = QVector2D(generatePosX(), generatePosY());
+//    roadMarkPos[0] = QVector2D(-0.2f, 0.8f);
+//    roadMarkPos[1] = QVector2D(-0.2f, 0);
+//    roadMarkPos[2] = QVector2D(-0.2f, -0.8f);
+//    roadMarkPos[3] = QVector2D(0.2f, 0.8f);
+//    roadMarkPos[4] = QVector2D(0.2f, 0);
+//    roadMarkPos[5] = QVector2D(0.2f, -0.8f);
 
-    roadMarkPos[0] = QVector2D(-0.2f, 0.8f);
-    roadMarkPos[1] = QVector2D(-0.2f, 0);
-    roadMarkPos[2] = QVector2D(-0.2f, -0.8f);
-    roadMarkPos[3] = QVector2D(0.2f, 0.8f);
-    roadMarkPos[4] = QVector2D(0.2f, 0);
-    roadMarkPos[5] = QVector2D(0.2f, -0.8f);
+//    emit hideBtn();
 
-    emit hideBtn();
+//    score = 0;
+//    emit updateScore(QString("Score: %1").arg(score));
+//    collided = false;
 
-    score = 0;
-    emit updateScore(QString("Score: %1").arg(score));
-    collided = false;
-
-    update();
+//    timer.start(0);
 }
 
 void OpenGLWidget::exitGame() {
