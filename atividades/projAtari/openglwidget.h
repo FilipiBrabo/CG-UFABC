@@ -4,6 +4,7 @@
 #include <QtOpenGL>
 #include <QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
+#include <QRandomGenerator>
 
 #include <memory>
 
@@ -11,14 +12,21 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
 {
     Q_OBJECT
 
-    GLuint vboVertices = 0;
-    GLuint vboColors = 0;
-    GLuint vboIndices = 0;
+    QRandomGenerator rd;
+
+    GLuint vboVerticesRoadMark = 0;
+    GLuint vboIndicesRoadMark = 0;
+    GLuint vboColorsRoadMark = 0;
+    GLuint vaoRoadMark = 0;
+
+    GLuint vboVerticesGrass = 0;
+    GLuint vboIndicesGrass = 0;
+    GLuint vboColorsGrass = 0;
+    GLuint vaoGrass = 0;
 
     GLuint vboVerticesCar = 0;
     GLuint vboColorsCar = 0;
     GLuint vboIndicesCar = 0;
-
     GLuint vaoCar = 0;
 
     std::unique_ptr<QVector4D []> vertices = nullptr;
@@ -27,22 +35,21 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
 
     GLuint shaderProgram;
 
-    float playerPosX = 0;
-    float playerPosY = -0.8f;
-    float distanceOffset = 0.08f;
+    std::unique_ptr<QVector2D []> playerPos = nullptr;
+    std::unique_ptr<QVector2D []> enemiePos = nullptr;
+    std::unique_ptr<QVector2D []> roadMarkPos = nullptr;
 
-
-    float enemiesPosX[3] = {-0.4f, 0, 0.4f};
-    float enemiesPosY[3] = {-1, 0, -1};
+    float distanceOffset = 0.095f;
 
     unsigned int numVertices, numFaces, numVerticesCar, numFacesCar;
+
     float speed = 0;
     bool collided = false;
 
     QTimer timer;
     QTime time;
 
-    int a =0;
+    int score = 0;
 
 public:
     explicit OpenGLWidget (QWidget *parent = 0);
@@ -50,15 +57,22 @@ public:
 
     void createVBOs();
     void createCarVBO();
+    void createRoadMarkVBO();
+    void createGrassVBO();
     void createShaders();
 
     void destroyVBOs();
     void destroyShaders();
 
-    void drawCar(float x, float y);
+    void drawCar(QVector2D);
+    void drawRoadMark(QVector2D);
+    void drawGrass(float x);
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
+
+    float generatePosX();
+    float generatePosY();
 
 protected :
     void initializeGL();
@@ -68,5 +82,12 @@ protected :
 
 public slots:
     void animate();
+    void restartGame();
+    void exitGame();
+
+signals:
+    void updateScore(QString);
+    void showBtn();
+    void hideBtn();
 };
 #endif
