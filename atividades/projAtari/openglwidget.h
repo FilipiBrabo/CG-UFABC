@@ -24,10 +24,10 @@ class OpenGLWidget : public QOpenGLWidget, protected QOpenGLExtraFunctions
     GLuint vboColorsGrass = 0;
     GLuint vaoGrass = 0;
 
-    GLuint vboVerticesCar = 0;
-    GLuint vboColorsCar = 0;
-    GLuint vboIndicesCar = 0;
-    GLuint vaoCar = 0;
+    GLuint vboVerticesRCar, vboVerticesYCar, vboVerticesGCar, vboVerticesBCar = 0;
+    GLuint vboColorsRCar, vboColorsYCar, vboColorsGCar, vboColorsBCar = 0;
+    GLuint vboIndicesRCar, vboIndicesYCar, vboIndicesGCar, vboIndicesBCar = 0;
+    GLuint vaoRCar, vaoYCar, vaoGCar, vaoBCar = 0;
 
     std::unique_ptr<QVector4D []> vertices = nullptr;
     std::unique_ptr<QVector4D []> colors = nullptr;
@@ -56,7 +56,10 @@ public:
     ~OpenGLWidget();
 
     void createVBOs();
-    void createCarVBO();
+    void createCarRVBO();
+    void createCarYVBO();
+    void createCarGVBO();
+    void createCarBVBO();
     void createRoadMarkVBO();
     void createGrassVBO();
     void createShaders();
@@ -64,7 +67,10 @@ public:
     void destroyVBOs();
     void destroyShaders();
 
-    void drawCar(QVector2D);
+    void drawRCar(QVector2D);
+    void drawYCar(QVector2D);
+    void drawGCar(QVector2D);
+    void drawBCar(QVector2D);
     void drawRoadMark(QVector2D);
     void drawGrass(float x);
 

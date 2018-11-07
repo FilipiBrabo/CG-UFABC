@@ -20,12 +20,12 @@ void OpenGLWidget::initializeGL()
     qDebug("GLSL %s", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     emit hideBtn();
+    score = 0;
     emit updateScore(QString("Score: %1").arg(score));
 
     createShaders();
     createVBOs();
 
-    score = 0;
     collided = false;
 
     playerPos = std::make_unique<QVector2D []>(1);
@@ -69,10 +69,15 @@ void OpenGLWidget::paintGL()
 
     if (!collided) {
         for (size_t i = 0; i < 5; i++) {
-            drawCar(enemiePos[i]);
-
-            drawCar(playerPos[0]);
+            if (i%3 == 0) {
+                drawYCar(enemiePos[i]);
+            } else if (i%3 == 1) {
+                drawGCar(enemiePos[i]);
+            } else {
+                drawBCar(enemiePos[i]);
+            }
         }
+        drawRCar(playerPos[0]);
     }
 }
 
@@ -196,12 +201,64 @@ void OpenGLWidget::destroyShaders()
     glDeleteProgram(shaderProgram);
 }
 
+void OpenGLWidget::destroyVBOs()
+{
+    glDeleteBuffers(1, &vboVerticesRCar);
+    glDeleteBuffers(1, &vboColorsRCar);
+    glDeleteBuffers(1, &vboIndicesRCar);
+
+    glDeleteBuffers(1, &vboVerticesYCar);
+    glDeleteBuffers(1, &vboColorsYCar);
+    glDeleteBuffers(1, &vboIndicesYCar);
+
+    glDeleteBuffers(1, &vboVerticesGCar);
+    glDeleteBuffers(1, &vboColorsGCar);
+    glDeleteBuffers(1, &vboIndicesGCar);
+
+    glDeleteBuffers(1, &vboVerticesBCar);
+    glDeleteBuffers(1, &vboColorsBCar);
+    glDeleteBuffers(1, &vboIndicesBCar);
+
+    glDeleteBuffers(1, &vboVerticesRoadMark);
+    glDeleteBuffers(1, &vboColorsRoadMark);
+    glDeleteBuffers(1, &vboIndicesRoadMark);
+
+    glDeleteBuffers(1, &vboVerticesGrass);
+    glDeleteBuffers(1, &vboColorsGrass);
+    glDeleteBuffers(1, &vboIndicesGrass);
+
+    glDeleteVertexArrays(1, &vaoRCar);
+    glDeleteVertexArrays(1, &vaoYCar);
+    glDeleteVertexArrays(1, &vaoGCar);
+    glDeleteVertexArrays(1, &vaoBCar);
+    glDeleteVertexArrays(1, &vaoRoadMark);
+    glDeleteVertexArrays(1, &vaoGrass);
+
+    vboVerticesRCar =vboVerticesYCar = vboVerticesGCar = vboVerticesBCar = 0;
+    vboIndicesRCar = vboIndicesYCar = vboIndicesGCar = vboIndicesBCar = 0;
+    vboColorsRCar = vboColorsYCar = vboColorsGCar = vboColorsBCar = 0;
+    vaoRCar = vaoYCar = vaoGCar = vaoBCar = 0;
+
+    vboVerticesRoadMark = 0;
+    vboIndicesRoadMark = 0;
+    vboColorsRoadMark = 0;
+    vaoRoadMark = 0;
+
+    vboVerticesGrass = 0;
+    vboIndicesGrass = 0;
+    vboColorsGrass = 0;
+    vaoGrass = 0;
+}
+
 void OpenGLWidget::createVBOs()
 {
     makeCurrent();
     destroyVBOs();
 
-    createCarVBO();
+    createCarRVBO();
+    createCarYVBO();
+    createCarGVBO();
+    createCarBVBO();
     createRoadMarkVBO();
     createGrassVBO();
 }
@@ -212,10 +269,6 @@ void OpenGLWidget::createGrassVBO() {
 
     numVertices = 4;
     numFaces = 2;
-
-//    vertices = std::make_unique<QVector4D []>(numVertices);
-//    colors = std::make_unique<QVector4D []>(numVertices);
-//    indices = std::make_unique<unsigned int []>(numFaces*3);
 
     //Vertices of the mark
     vertices[0] = QVector4D(-0.2f, -1, 0, 1);
@@ -304,7 +357,7 @@ void OpenGLWidget::createRoadMarkVBO() {
 
 }
 
-void OpenGLWidget::createCarVBO() {
+void OpenGLWidget::createCarRVBO() {
     numVerticesCar = 16;
     numFacesCar = 10;
 
@@ -381,59 +434,307 @@ void OpenGLWidget::createCarVBO() {
     indices[28] = 14;
     indices[29] = 15;
 
-    glGenVertexArrays(1, &vaoCar);
-    glBindVertexArray(vaoCar);
+    glGenVertexArrays(1, &vaoRCar);
+    glBindVertexArray(vaoRCar);
 
-    glGenBuffers(1, &vboVerticesCar);
-    glBindBuffer(GL_ARRAY_BUFFER, vboVerticesCar);
+    glGenBuffers(1, &vboVerticesRCar);
+    glBindBuffer(GL_ARRAY_BUFFER, vboVerticesRCar);
     glBufferData(GL_ARRAY_BUFFER, numVerticesCar * sizeof(QVector4D), vertices.get(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(0);
 
-    glGenBuffers(1, &vboColorsCar);
-    glBindBuffer(GL_ARRAY_BUFFER, vboColorsCar);
+    glGenBuffers(1, &vboColorsRCar);
+    glBindBuffer(GL_ARRAY_BUFFER, vboColorsRCar);
     glBufferData(GL_ARRAY_BUFFER, numVerticesCar * sizeof(QVector4D), colors.get(), GL_STATIC_DRAW);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
     glEnableVertexAttribArray(1);
 
-    glGenBuffers(1, &vboIndicesCar);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesCar);
+    glGenBuffers(1, &vboIndicesRCar);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesRCar);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, numFacesCar * 3 * sizeof(unsigned int), indices.get(), GL_DYNAMIC_DRAW);
 
 }
 
-void OpenGLWidget::destroyVBOs()
-{
-    glDeleteBuffers(1, &vboVerticesCar);
-    glDeleteBuffers(1, &vboColorsCar);
-    glDeleteBuffers(1, &vboIndicesCar);
+void OpenGLWidget::createCarYVBO() {
+    numVerticesCar = 16;
+    numFacesCar = 10;
 
-    glDeleteBuffers(1, &vboVerticesRoadMark);
-    glDeleteBuffers(1, &vboColorsRoadMark);
-    glDeleteBuffers(1, &vboIndicesRoadMark);
+    //vertices of the car
+    vertices[0] = QVector4D(-0.06f, -0.15f, 0, 1);
+    vertices[1] = QVector4D(0.06f, -0.15f, 0, 1);
+    vertices[2] = QVector4D(0.1f, -0.11f, 0, 1);
+    vertices[3] = QVector4D(0.1f, 0.11f, 0, 1);
+    vertices[4] = QVector4D(0.05f, 0.15f, 0, 1);
+    vertices[5] = QVector4D(-0.05f, 0.15f, 0, 1);
+    vertices[6] = QVector4D(-0.1f, 0.11f, 0, 1);
+    vertices[7] = QVector4D(-0.1f, -0.11f, 0, 1);
 
-    glDeleteBuffers(1, &vboVerticesGrass);
-    glDeleteBuffers(1, &vboColorsGrass);
-    glDeleteBuffers(1, &vboIndicesGrass);
+    // Vertices of the windshield
+    vertices[8] = QVector4D(0.07f, 0.05f, 0, 1);
+    vertices[9] = QVector4D(-0.07f, 0.05f, 0, 1);
+    vertices[10] = QVector4D(-0.06f, 0, 0, 1);
+    vertices[11] = QVector4D(0.06f, 0, 0, 1);
 
-    glDeleteVertexArrays(1, &vaoCar);
-    glDeleteVertexArrays(1, &vaoRoadMark);
-    glDeleteVertexArrays(1, &vaoGrass);
+    // Vertices of the back windshield
+    vertices[12] = QVector4D(0.04f, -0.12f, 0, 1);
+    vertices[13] = QVector4D(-0.04f, -0.12f, 0, 1);
+    vertices[14] = QVector4D(-0.06f, -0.08f, 0, 1);
+    vertices[15] = QVector4D(0.06f, -0.08f, 0, 1);
 
-    vboVerticesCar = 0;
-    vboIndicesCar = 0;
-    vboColorsCar = 0;    
-    vaoCar = 0;
 
-    vboVerticesRoadMark = 0;
-    vboIndicesRoadMark = 0;
-    vboColorsRoadMark = 0;
-    vaoRoadMark = 0;
+    // Color of the car
+    for (size_t i = 0; i < 8; i++){
+        colors[i] = QVector4D(1, 1, 0, 1);
+    }
 
-    vboVerticesGrass = 0;
-    vboIndicesGrass = 0;
-    vboColorsGrass = 0;
-    vaoGrass = 0;
+    // Color of the windshields
+    for (size_t i = 8; i< numVerticesCar; i++) {
+        colors[i] = QVector4D(0, 0, 0, 1);
+    }
+
+    // Topology of the car mesh
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 0;
+    indices[4] = 2;
+    indices[5] = 3;
+    indices[6] = 0;
+    indices[7] = 3;
+    indices[8] = 4;
+    indices[9] = 0;
+    indices[10] = 4;
+    indices[11] = 5;
+    indices[12] = 0;
+    indices[13] = 5;
+    indices[14] = 6;
+    indices[15] = 0;
+    indices[16] = 6;
+    indices[17] = 7;
+
+    //Topology of the windshield
+    indices[18] = 9;
+    indices[19] = 8;
+    indices[20] = 11;
+    indices[21] = 9;
+    indices[22] = 10;
+    indices[23] = 11;
+
+    // Topology of the back windshield
+    indices[24] = 13;
+    indices[25] = 12;
+    indices[26] = 15;
+    indices[27] = 13;
+    indices[28] = 14;
+    indices[29] = 15;
+
+    glGenVertexArrays(1, &vaoYCar);
+    glBindVertexArray(vaoYCar);
+
+    glGenBuffers(1, &vboVerticesYCar);
+    glBindBuffer(GL_ARRAY_BUFFER, vboVerticesYCar);
+    glBufferData(GL_ARRAY_BUFFER, numVerticesCar * sizeof(QVector4D), vertices.get(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &vboColorsYCar);
+    glBindBuffer(GL_ARRAY_BUFFER, vboColorsYCar);
+    glBufferData(GL_ARRAY_BUFFER, numVerticesCar * sizeof(QVector4D), colors.get(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(1);
+
+    glGenBuffers(1, &vboIndicesYCar);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesYCar);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, numFacesCar * 3 * sizeof(unsigned int), indices.get(), GL_DYNAMIC_DRAW);
+
+}
+
+void OpenGLWidget::createCarGVBO() {
+    numVerticesCar = 16;
+    numFacesCar = 10;
+
+    //vertices of the car
+    vertices[0] = QVector4D(-0.06f, -0.15f, 0, 1);
+    vertices[1] = QVector4D(0.06f, -0.15f, 0, 1);
+    vertices[2] = QVector4D(0.1f, -0.11f, 0, 1);
+    vertices[3] = QVector4D(0.1f, 0.11f, 0, 1);
+    vertices[4] = QVector4D(0.05f, 0.15f, 0, 1);
+    vertices[5] = QVector4D(-0.05f, 0.15f, 0, 1);
+    vertices[6] = QVector4D(-0.1f, 0.11f, 0, 1);
+    vertices[7] = QVector4D(-0.1f, -0.11f, 0, 1);
+
+    // Vertices of the windshield
+    vertices[8] = QVector4D(0.07f, 0.05f, 0, 1);
+    vertices[9] = QVector4D(-0.07f, 0.05f, 0, 1);
+    vertices[10] = QVector4D(-0.06f, 0, 0, 1);
+    vertices[11] = QVector4D(0.06f, 0, 0, 1);
+
+    // Vertices of the back windshield
+    vertices[12] = QVector4D(0.04f, -0.12f, 0, 1);
+    vertices[13] = QVector4D(-0.04f, -0.12f, 0, 1);
+    vertices[14] = QVector4D(-0.06f, -0.08f, 0, 1);
+    vertices[15] = QVector4D(0.06f, -0.08f, 0, 1);
+
+
+    // Color of the car
+    for (size_t i = 0; i < 8; i++){
+        colors[i] = QVector4D(0.1f, 1 , 0.3f, 1);
+    }
+
+    // Color of the windshields
+    for (size_t i = 8; i< numVerticesCar; i++) {
+        colors[i] = QVector4D(0, 0, 0, 1);
+    }
+
+    // Topology of the car mesh
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 0;
+    indices[4] = 2;
+    indices[5] = 3;
+    indices[6] = 0;
+    indices[7] = 3;
+    indices[8] = 4;
+    indices[9] = 0;
+    indices[10] = 4;
+    indices[11] = 5;
+    indices[12] = 0;
+    indices[13] = 5;
+    indices[14] = 6;
+    indices[15] = 0;
+    indices[16] = 6;
+    indices[17] = 7;
+
+    //Topology of the windshield
+    indices[18] = 9;
+    indices[19] = 8;
+    indices[20] = 11;
+    indices[21] = 9;
+    indices[22] = 10;
+    indices[23] = 11;
+
+    // Topology of the back windshield
+    indices[24] = 13;
+    indices[25] = 12;
+    indices[26] = 15;
+    indices[27] = 13;
+    indices[28] = 14;
+    indices[29] = 15;
+
+    glGenVertexArrays(1, &vaoGCar);
+    glBindVertexArray(vaoGCar);
+
+    glGenBuffers(1, &vboVerticesGCar);
+    glBindBuffer(GL_ARRAY_BUFFER, vboVerticesGCar);
+    glBufferData(GL_ARRAY_BUFFER, numVerticesCar * sizeof(QVector4D), vertices.get(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &vboColorsGCar);
+    glBindBuffer(GL_ARRAY_BUFFER, vboColorsGCar);
+    glBufferData(GL_ARRAY_BUFFER, numVerticesCar * sizeof(QVector4D), colors.get(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(1);
+
+    glGenBuffers(1, &vboIndicesGCar);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesGCar);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, numFacesCar * 3 * sizeof(unsigned int), indices.get(), GL_DYNAMIC_DRAW);
+
+}
+
+void OpenGLWidget::createCarBVBO() {
+    numVerticesCar = 16;
+    numFacesCar = 10;
+
+    //vertices of the car
+    vertices[0] = QVector4D(-0.06f, -0.15f, 0, 1);
+    vertices[1] = QVector4D(0.06f, -0.15f, 0, 1);
+    vertices[2] = QVector4D(0.1f, -0.11f, 0, 1);
+    vertices[3] = QVector4D(0.1f, 0.11f, 0, 1);
+    vertices[4] = QVector4D(0.05f, 0.15f, 0, 1);
+    vertices[5] = QVector4D(-0.05f, 0.15f, 0, 1);
+    vertices[6] = QVector4D(-0.1f, 0.11f, 0, 1);
+    vertices[7] = QVector4D(-0.1f, -0.11f, 0, 1);
+
+    // Vertices of the windshield
+    vertices[8] = QVector4D(0.07f, 0.05f, 0, 1);
+    vertices[9] = QVector4D(-0.07f, 0.05f, 0, 1);
+    vertices[10] = QVector4D(-0.06f, 0, 0, 1);
+    vertices[11] = QVector4D(0.06f, 0, 0, 1);
+
+    // Vertices of the back windshield
+    vertices[12] = QVector4D(0.04f, -0.12f, 0, 1);
+    vertices[13] = QVector4D(-0.04f, -0.12f, 0, 1);
+    vertices[14] = QVector4D(-0.06f, -0.08f, 0, 1);
+    vertices[15] = QVector4D(0.06f, -0.08f, 0, 1);
+
+
+    // Color of the car
+    for (size_t i = 0; i < 8; i++){
+        colors[i] = QVector4D(0, 0, 1, 1);
+    }
+
+    // Color of the windshields
+    for (size_t i = 8; i< numVerticesCar; i++) {
+        colors[i] = QVector4D(0, 0, 0, 1);
+    }
+
+    // Topology of the car mesh
+    indices[0] = 0;
+    indices[1] = 1;
+    indices[2] = 2;
+    indices[3] = 0;
+    indices[4] = 2;
+    indices[5] = 3;
+    indices[6] = 0;
+    indices[7] = 3;
+    indices[8] = 4;
+    indices[9] = 0;
+    indices[10] = 4;
+    indices[11] = 5;
+    indices[12] = 0;
+    indices[13] = 5;
+    indices[14] = 6;
+    indices[15] = 0;
+    indices[16] = 6;
+    indices[17] = 7;
+
+    //Topology of the windshield
+    indices[18] = 9;
+    indices[19] = 8;
+    indices[20] = 11;
+    indices[21] = 9;
+    indices[22] = 10;
+    indices[23] = 11;
+
+    // Topology of the back windshield
+    indices[24] = 13;
+    indices[25] = 12;
+    indices[26] = 15;
+    indices[27] = 13;
+    indices[28] = 14;
+    indices[29] = 15;
+
+    glGenVertexArrays(1, &vaoBCar);
+    glBindVertexArray(vaoBCar);
+
+    glGenBuffers(1, &vboVerticesBCar);
+    glBindBuffer(GL_ARRAY_BUFFER, vboVerticesBCar);
+    glBufferData(GL_ARRAY_BUFFER, numVerticesCar * sizeof(QVector4D), vertices.get(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(0);
+
+    glGenBuffers(1, &vboColorsBCar);
+    glBindBuffer(GL_ARRAY_BUFFER, vboColorsBCar);
+    glBufferData(GL_ARRAY_BUFFER, numVerticesCar * sizeof(QVector4D), colors.get(), GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, nullptr);
+    glEnableVertexAttribArray(1);
+
+    glGenBuffers(1, &vboIndicesBCar);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIndicesBCar);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, numFacesCar * 3 * sizeof(unsigned int), indices.get(), GL_DYNAMIC_DRAW);
+
 }
 
 void OpenGLWidget::animate()
@@ -499,13 +800,52 @@ void OpenGLWidget::animate()
     update();
 }
 
-void OpenGLWidget::drawCar(QVector2D v) {
+void OpenGLWidget::drawRCar(QVector2D v) {
     GLint locTranslation = glGetUniformLocation(shaderProgram, "translation");
     GLint locScaling = glGetUniformLocation(shaderProgram, "scaling");
 
     glUseProgram(shaderProgram);
 
-    glBindVertexArray(vaoCar);
+    glBindVertexArray(vaoRCar);
+
+    glUniform4f(locTranslation, v.x(), v.y(), 0, 0);
+    glUniform1f(locScaling, 1.0);
+    glDrawElements(GL_TRIANGLES, numFacesCar * 3, GL_UNSIGNED_INT, nullptr);
+}
+
+void OpenGLWidget::drawYCar(QVector2D v) {
+    GLint locTranslation = glGetUniformLocation(shaderProgram, "translation");
+    GLint locScaling = glGetUniformLocation(shaderProgram, "scaling");
+
+    glUseProgram(shaderProgram);
+
+    glBindVertexArray(vaoYCar);
+
+    glUniform4f(locTranslation, v.x(), v.y(), 0, 0);
+    glUniform1f(locScaling, 1.0);
+    glDrawElements(GL_TRIANGLES, numFacesCar * 3, GL_UNSIGNED_INT, nullptr);
+}
+
+void OpenGLWidget::drawGCar(QVector2D v) {
+    GLint locTranslation = glGetUniformLocation(shaderProgram, "translation");
+    GLint locScaling = glGetUniformLocation(shaderProgram, "scaling");
+
+    glUseProgram(shaderProgram);
+
+    glBindVertexArray(vaoGCar);
+
+    glUniform4f(locTranslation, v.x(), v.y(), 0, 0);
+    glUniform1f(locScaling, 1.0);
+    glDrawElements(GL_TRIANGLES, numFacesCar * 3, GL_UNSIGNED_INT, nullptr);
+}
+
+void OpenGLWidget::drawBCar(QVector2D v) {
+    GLint locTranslation = glGetUniformLocation(shaderProgram, "translation");
+    GLint locScaling = glGetUniformLocation(shaderProgram, "scaling");
+
+    glUseProgram(shaderProgram);
+
+    glBindVertexArray(vaoBCar);
 
     glUniform4f(locTranslation, v.x(), v.y(), 0, 0);
     glUniform1f(locScaling, 1.0);
@@ -537,6 +877,7 @@ void OpenGLWidget::drawGrass(float x) {
     glUniform1f(locScaling, 1);
     glDrawElements(GL_TRIANGLES, numFaces * 3, GL_UNSIGNED_INT, nullptr);
 }
+
 void OpenGLWidget::keyPressEvent(QKeyEvent *event)
 {
     if (event->key() == Qt::Key_D)
@@ -593,28 +934,6 @@ void OpenGLWidget::restartGame() {
         destroyVBOs();
         destroyShaders();
         initializeGL();
-//    playerPos[0] = QVector2D(0, -0.8f);
-
-//    enemiePos[0] = QVector2D(generatePosX(), 1.15f);
-//    enemiePos[1] = QVector2D(generatePosX(), 1.75f);
-//    enemiePos[2] = QVector2D(generatePosX(), 2.35f);
-//    enemiePos[3] = QVector2D(generatePosX(), 2.95f);
-//    enemiePos[4] = QVector2D(generatePosX(), generatePosY());
-
-//    roadMarkPos[0] = QVector2D(-0.2f, 0.8f);
-//    roadMarkPos[1] = QVector2D(-0.2f, 0);
-//    roadMarkPos[2] = QVector2D(-0.2f, -0.8f);
-//    roadMarkPos[3] = QVector2D(0.2f, 0.8f);
-//    roadMarkPos[4] = QVector2D(0.2f, 0);
-//    roadMarkPos[5] = QVector2D(0.2f, -0.8f);
-
-//    emit hideBtn();
-
-//    score = 0;
-//    emit updateScore(QString("Score: %1").arg(score));
-//    collided = false;
-
-//    timer.start(0);
 }
 
 void OpenGLWidget::exitGame() {
@@ -623,3 +942,5 @@ void OpenGLWidget::exitGame() {
     QApplication::quit();
 
 }
+
+
